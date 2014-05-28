@@ -31,14 +31,16 @@
 (def sr-half-mile-app
   {:version 2
    :transform [[:shift-gear [:my-car :gear] shift-gear-transform]
-               [:swap [:**] swap-transform]]
+               [:swap [:**] swap-transform]
+               [:debug [:pedestal :**] swap-transform]]
    :emit [{:init init-main}
           [#{[:my-car :gear]
              [:other-players :*]
              [:total-count]
-             [:total-gears]
-             [:players]} (app/default-emitter [:main])]]
+             [:total-gears]} (app/default-emitter [:main])]
+          [#{[:pedestal :debug :*]} (app/default-emitter [])]]
    :effect #{[#{[:my-car]} publish-player :single-val]}
    :derive #{[{[:my-car] :me [:other-players] :others} [:players] merge-players :map]
              [#{[:players :*]} [:total-count] total-count :vals]
-             [#{[:players :* :gear]} [:total-gears] sum-all :vals]}})
+             [#{[:players :* :gear]} [:total-gears] sum-all :vals]}
+   :debug true})
