@@ -16,7 +16,9 @@
 
 (defn ^:export main []
   (let [app (start/create-app d/data-renderer-config)
-        services (services/->MockServices (:app app))]
+        services (services/->MockServices (:app app))
+        heartbeatService (services/->HeartbeatService (:app app))]
     (app/consume-effects (:app app) services/consume-effects)
     (p/start services)
+    (p/start heartbeatService)
     app))

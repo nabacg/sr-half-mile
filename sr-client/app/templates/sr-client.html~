@@ -14,13 +14,6 @@
           <span class="counter" field="content:my-gear">40</span>
         </div>
 
-	<div id="my-player">
-          <div template="my-player" class="counter-row" field="id:id">
-            <span class="counter-label">My Player:</span>
-            <span class="counter" field="content:count">10</span>
-          </div>
-        </div>
-
         <div id="other-players">
           <div template="other-players" class="counter-row" field="id:id">
             <span class="counter-label">Gear for <span field="content:counter-id">ahbnytnh</span>:</span>

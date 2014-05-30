@@ -23,3 +23,14 @@
                          (fn [e] (receive-sse app e))
                          false)))
   (stop [this]))
+
+(defn send-heartbeat [input-queue]
+  (p/put-message input-queue {msg/type :heartbeat
+                              msg/topic [:time]})
+  (platform/create-timeout 3000 #(send-heartbeat input-queue)))
+
+(defrecord HeartbeatService [app]
+  p/Activity
+  (start [this]
+    (send-heartbeat (:input app)))
+  (stop [this]))

@@ -19,7 +19,9 @@
 
 (defn ^:export main []
   (let [app (create-app (rendering/render-config))
-        services (services/->Services (:app app))]
+        services (services/->Services (:app app))
+        heartbeatService (services/->HeartbeatService (:app app))]
     (app/consume-effects (:app app) services/consume-effects)
     (p/start services)
+    (p/start heartbeatService)
     app))
