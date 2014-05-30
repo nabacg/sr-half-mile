@@ -24,17 +24,24 @@
 (defn merge-players [_ {:keys [me others]}]
   (assoc others "Me" me))
 
+(defn inc-transform [old_value _]
+  ((fnil inc 0) old_value))
+
 (defn init-main [_]
   [[:transform-enable [:main :my-car :gear]
-    :shift-gear [{msg/topic [:my-car :gear]}]]])
+    :shift-gear [{msg/topic [:my-car :gear]}]]
+   [:transform-enable [:time]
+    :heartbeat [{msg/topic [:time]}]]])
 
 (def sr-half-mile-app
   {:version 2
    :transform [[:shift-gear [:my-car :gear] shift-gear-transform]
                [:swap [:**] swap-transform]
+               [:heartbeat [:time] inc-transform]
                [:debug [:pedestal :**] swap-transform]]
    :emit [{:init init-main}
           [#{[:my-car :gear]
+             [:time]
              [:other-players :*]
              [:total-count]
              [:total-gears]} (app/default-emitter [:main])]
