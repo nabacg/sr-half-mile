@@ -5,5 +5,4 @@
   []
   {:sr-client-page (dtfn (tnodes "sr-client.html" "tutorial" [[:#other-players] [:#my-player]])
                          #{:id})
-   :other-players (dtfn (tnodes "sr-client.html" "other-players") #{:id})
-   :my-player (dtfn (tnodes "sr-client.html" "my-player") #{:id})})
+   :other-players (dtfn (tnodes "sr-client.html" "other-players") #{:id})})
