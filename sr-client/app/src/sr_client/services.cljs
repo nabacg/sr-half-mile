@@ -1,6 +1,8 @@
 (ns sr-client.services
   (:require [io.pedestal.app.protocols :as p]
-            [cljs.reader :as reader]))
+            [cljs.reader :as reader]
+            [io.pedestal.app.messages :as msg]
+            [io.pedestal.app.util.platform :as platform]))
 
 
 (defn receive-sse [app event]
