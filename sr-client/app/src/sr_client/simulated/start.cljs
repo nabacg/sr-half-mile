@@ -8,7 +8,8 @@
             ;; tools to work.
             [io.pedestal.app-tools.tooling :as tooling]
             [io.pedestal.app.protocols :as p]
-            [sr-client.simulated.services :as services]))
+            [sr-client.simulated.services :as services]
+            [sr-client.services :as heartbeatServices]))
 
 (defn param [name]
   (let [uri (goog.Uri. (.toString  (.-location js/document)))]
@@ -17,7 +18,7 @@
 (defn ^:export main []
   (let [app (start/create-app d/data-renderer-config)
         services (services/->MockServices (:app app))
-        heartbeatService (services/->HeartbeatService (:app app))]
+        heartbeatService (heartbeatServices/->HeartbeatService (:app app))]
     (app/consume-effects (:app app) services/consume-effects)
     (p/start services)
     (p/start heartbeatService)
