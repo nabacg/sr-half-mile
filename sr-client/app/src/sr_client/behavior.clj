@@ -27,6 +27,18 @@
 (defn inc-transform [old_value _]
   ((fnil inc 0) old_value))
 
+(def max-rpm 15000)
+
+(defn get-speed [old_value {:keys [gear rpm]}]
+  (if (nil? old_value)
+    5
+    (+ old_value (* old_value 0.05 (- 1 (/ rpm max-rpm))))))
+
+(defn get-rpm [old_value {:keys [gear time]}]
+  (if (nil? old_value)
+    100
+    (+ old_value (* max-rpm 0.05))))
+
 (defn init-main [_]
   [[:transform-enable [:main :my-car :gear]
     :shift-gear [{msg/topic [:my-car :gear]}]]
@@ -42,12 +54,16 @@
    :emit [{:init init-main}
           [#{[:my-car :gear]
              [:time]
+             [:rpm]
+             [:speed]
              [:other-players :*]
              [:total-count]
              [:total-gears]} (app/default-emitter [:main])]
           [#{[:pedestal :debug :*]} (app/default-emitter [])]]
    :effect #{[#{[:my-car]} publish-player :single-val]}
    :derive #{[{[:my-car] :me [:other-players] :others} [:players] merge-players :map]
+             [{[:my-car :gear] :gear [:rpm] :rpm} [:speed] get-speed :map]
+             [{[:my-car :gear] :gear [:time] :time} [:rpm] get-rpm :map]
              [#{[:players :*]} [:total-count] total-count :vals]
              [#{[:players :* :gear]} [:total-gears] sum-all :vals]}
    :debug true})
