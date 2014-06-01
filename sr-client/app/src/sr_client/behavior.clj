@@ -31,13 +31,16 @@
 
 (defn get-speed [old_value {:keys [gear rpm]}]
   (if (nil? old_value)
-    5
-    (+ old_value (* old_value 0.05 (- 1 (/ rpm max-rpm))))))
+    15
+    (+ old_value (* old_value 0.2 (- 1 (/ rpm max-rpm))))))
 
 (defn get-rpm [old_value {:keys [gear time]}]
   (if (nil? old_value)
     100
-    (+ old_value (* max-rpm 0.05))))
+    (let [new_value (+ old_value (* max-rpm 0.05))]
+      (if (> new_value max-rpm)
+        max-rpm
+        new_value))))
 
 (defn init-main [_]
   [[:transform-enable [:main :my-car :gear]

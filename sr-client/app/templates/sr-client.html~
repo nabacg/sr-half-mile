@@ -39,10 +39,13 @@
       <div class="span3">
 
         <div class="stat-label">
+          Game Time
+        </div>
+        <div class="stat" field="content:time">35</div>
+        <div class="stat-label">
           Dataflow Time
         </div>
         <div class="stat" field="content:dataflow-time">35</div>
-
 
       </div>
 
