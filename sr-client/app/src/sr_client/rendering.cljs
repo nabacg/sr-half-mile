@@ -27,7 +27,7 @@
 
 (defn render-other-counter-value [renderer [_ path _ new-value] input-queue]
   (let [key (last path)]
-    (templates/update-t renderer path {:count (str (:gear new-value))})))
+    (templates/update-t renderer path {:count (str new-value)})))
 
 (defn render-my-car-value [renderer [_ path _ new-value] input-queue]
   (templates/update-t renderer [:main] {:my-gear (str new-value)}))

@@ -65,7 +65,7 @@
              [:total-count]
              [:total-gears]} (app/default-emitter [:main])]
           [#{[:pedestal :debug :*]} (app/default-emitter [])]]
-   :effect #{[#{[:my-car]} publish-player :single-val]}
+   :effect #{[#{[:speed]} publish-player :single-val]}
    :derive #{[{[:my-car] :me [:other-players] :others} [:players] merge-players :map]
              [{[:my-car :gear] :gear [:my-car :rpm] :rpm} [:speed] get-speed :map]
              [{[:my-car :gear] :gear [:time] :time} [:my-car :rpm] get-rpm :map]
