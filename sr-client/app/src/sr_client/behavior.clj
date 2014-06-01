@@ -3,8 +3,10 @@
               [io.pedestal.app.messages :as msg]
               [io.pedestal.app :as app]))
 
-(defn shift-gear-transform [gear _]
-  ((fnil inc 0) gear))
+(defn shift-gear-transform [{:keys [gear rpm] :as old_value} _]
+;  (.log js/console "PRINTING"  gear rpm old_value)
+  {:gear ((fnil inc 0) gear)
+   :rpm 0})
 
 (defn publish-player [player]
   [{msg/type :swap msg/topic [:other-players] :value player}])
@@ -16,7 +18,7 @@
 ;{msg/type :shift-gear msg/topic [:my-car :gear]}
 (defn total-count [_ nums]
   (do
-    (.log js/console "!!!!!!!!!!" nums)
+    ;(.log js/console "!!!!!!!!!!" nums)
     (count nums)))
 
 (defn sum-all [_ nums] (apply + nums))
@@ -43,14 +45,14 @@
         new_value))))
 
 (defn init-main [_]
-  [[:transform-enable [:main :my-car :gear]
-    :shift-gear [{msg/topic [:my-car :gear]}]]
+  [[:transform-enable [:main :my-car]
+    :shift-gear [{msg/topic [:my-car]}]]
    [:transform-enable [:time]
     :heartbeat [{msg/topic [:time]}]]])
 
 (def sr-half-mile-app
   {:version 2
-   :transform [[:shift-gear [:my-car :gear] shift-gear-transform]
+   :transform [[:shift-gear [:my-car] shift-gear-transform]
                [:swap [:**] swap-transform]
                [:heartbeat [:time] inc-transform]
                [:debug [:pedestal :**] swap-transform]]
