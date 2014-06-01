@@ -12,6 +12,14 @@
         <div class="counter-row">
           <span class="counter-label">My Gear:</span>
           <span class="counter" field="content:my-gear">40</span>
+        <div class="stat-label">
+          Speed (km/h)
+        </div>
+        <div class="stat" field="content:speed">25</div>
+        <div class="stat-label">
+          RPM
+        </div>
+        <div class="stat" field="content:rpm">25</div>
         </div>
 
         <div id="other-players">

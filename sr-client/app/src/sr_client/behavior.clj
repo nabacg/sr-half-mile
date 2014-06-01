@@ -3,8 +3,8 @@
               [io.pedestal.app.messages :as msg]
               [io.pedestal.app :as app]))
 
-(defn shift-gear-transform [old_value _]
-  ((fnil inc 0) old_value))
+(defn shift-gear-transform [gear _]
+  ((fnil inc 0) gear))
 
 (defn publish-player [player]
   [{msg/type :swap msg/topic [:other-players] :value player}])
@@ -57,7 +57,7 @@
    :emit [{:init init-main}
           [#{[:my-car :gear]
              [:time]
-             [:rpm]
+             [:my-car :rpm]
              [:speed]
              [:other-players :*]
              [:total-count]
@@ -65,8 +65,8 @@
           [#{[:pedestal :debug :*]} (app/default-emitter [])]]
    :effect #{[#{[:my-car]} publish-player :single-val]}
    :derive #{[{[:my-car] :me [:other-players] :others} [:players] merge-players :map]
-             [{[:my-car :gear] :gear [:rpm] :rpm} [:speed] get-speed :map]
-             [{[:my-car :gear] :gear [:time] :time} [:rpm] get-rpm :map]
+             [{[:my-car :gear] :gear [:my-car :rpm] :rpm} [:speed] get-speed :map]
+             [{[:my-car :gear] :gear [:time] :time} [:my-car :rpm] get-rpm :map]
              [#{[:players :*]} [:total-count] total-count :vals]
              [#{[:players :* :gear]} [:total-gears] sum-all :vals]}
    :debug true})

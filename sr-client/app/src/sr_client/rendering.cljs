@@ -32,6 +32,10 @@
 (defn render-my-car-value [renderer [_ path _ new-value] input-queue]
   (templates/update-t renderer [:main] {:my-gear (str new-value)}))
 
+(defn render-my-car-rpm [renderer [_ path _ new-value] input-queue]
+  (templates/update-t renderer [:main] {:my-rpm (str new-value)}))
+
+
 (defn render-config []
   [[:node-create [:main] (render-template :sr-client-page
                                           (constantly {:my-gear 0}))]
@@ -40,6 +44,7 @@
    [:transform-enable [:main :my-car :gear] (h/add-send-on-click "inc-button")]
    [:transform-disable [:main :my-car :gear] (h/remove-send-on-click "inc-button")]
    [:value [:main :my-car :gear] render-my-car-value]
+   [:value [:main :my-car :rpm] render-my-car-rpm]
    [:value [:main :*] render-value]
    [:value [:pedestal :debug :*] render-value]
 
