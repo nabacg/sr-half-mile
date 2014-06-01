@@ -39,7 +39,7 @@
 (defn get-rpm [old_value {:keys [gear time]}]
   (if (nil? old_value)
     100
-    (let [new_value (+ old_value (* max-rpm 0.05))]
+    (let [new_value (+ old_value (* max-rpm 0.1))]
       (if (> new_value max-rpm)
         max-rpm
         new_value))))
