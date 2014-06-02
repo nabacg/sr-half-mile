@@ -11,7 +11,7 @@
 
         <div class="counter-row">
           <span class="counter-label">My Gear:</span>
-          <span class="counter" field="content:my-gear">40</span>
+          <span class="counter" field="content:gear">40</span>
         <div class="stat-label">
           Speed (km/h)
         </div>
@@ -19,13 +19,14 @@
         <div class="stat-label">
           RPM
         </div>
-        <div class="stat" field="content:my-rpm">25</div>
+        <div class="stat" field="content:rpm">25</div>
         </div>
-
         <div id="other-players">
-          <div template="other-players" class="counter-row" field="id:id">
+          <div template="other-players" field="id:id">
             <span class="counter-label">Speed for <span field="content:counter-id">ahbnytnh</span>:</span>
             <span class="counter" field="content:count">10</span>
+            <span class="counter-label"> Distance :</span>
+            <span class="counter" field="content:distance">10</span>
           </div>
         </div>
 
@@ -37,7 +38,10 @@
            Total Count
         </div>
         <div class="stat" field="content:total-count">40</div>
-
+        <div class="stat-label">
+          Distance left (m)
+        </div>
+        <div class="stat" field="content:distance">25</div>
         <div class="stat-label">
           Total Gears
         </div>

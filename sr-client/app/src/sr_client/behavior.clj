@@ -3,11 +3,18 @@
               [io.pedestal.app.messages :as msg]
               [io.pedestal.app :as app]))
 
-(defn shift-gear-transform [{:keys [gear rpm speed]} _]
+
+(def max-rpm 15000)
+(def race-distance-meters 402)
+
+
+
+(defn shift-gear-transform [{:keys [gear rpm speed distance]} _]
 ;  (.log js/console "PRINTING"  gear rpm old_value)
   {:gear ((fnil inc 0) gear)
    :rpm 0
-   :speed speed})
+   :speed speed
+   :distance distance})
 
 (defn publish-player [player]
   [{msg/type :swap msg/topic [:other-players] :value player}])
@@ -30,15 +37,13 @@
 (defn inc-transform [old_value _]
   ((fnil inc 0) old_value))
 
-(def max-rpm 15000)
-
 (defn get-speed [old_value {:keys [gear rpm]}]
   (if (nil? old_value)
-    15
+    8
     (+ old_value (* old_value 0.2 (- 1 (/ rpm max-rpm))))))
 
 (defn get-rpm [old_value {:keys [gear time]}]
-  (if (nil? old_value)
+ (if (nil? old_value)
     100
     (let [new_value (+ old_value (* max-rpm 0.1))]
       (if (> new_value max-rpm)
@@ -51,6 +56,14 @@
    [:transform-enable [:time]
     :heartbeat [{msg/topic [:time]}]]])
 
+(defn get-distance [_ {:keys [speed time]}]
+  (let [speed-meters-sec (float (* speed (/ 1000 3600)))
+        time-sec time
+        new-distance (- race-distance-meters (* speed-meters-sec time-sec))]
+    (if (> new-distance 0)
+      new-distance
+      0)))
+
 (def sr-half-mile-app
   {:version 2
    :transform [[:shift-gear [:my-car] shift-gear-transform]
@@ -62,6 +75,7 @@
              [:time]
              [:my-car :rpm]
              [:my-car :speed]
+             [:my-car :distance]
              [:other-players :*]
              [:total-count]
              [:total-gears]} (app/default-emitter [:main])]
@@ -69,6 +83,7 @@
    :effect #{[#{[:my-car]} publish-player :single-val]}
    :derive #{[{[:my-car] :me [:other-players] :others} [:players] merge-players :map]
              [{[:my-car :gear] :gear [:my-car :rpm] :rpm} [:my-car :speed] get-speed :map]
+             [{[:my-car :speed] :speed [:time] :time} [:my-car :distance] get-distance :map]
              [{[:my-car :gear] :gear [:time] :time} [:my-car :rpm] get-rpm :map]
              [#{[:players :*]} [:total-count] total-count :vals]
              [#{[:players :* :gear]} [:total-gears] sum-all :vals]}

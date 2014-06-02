@@ -25,30 +25,23 @@
 (defn render-other-counters-element [renderer [_ path] _]
   (render/new-id! renderer path "other-players"))
 
-(defn render-other-counter-value [renderer [_ path _ new-value] input-queue]
+(defn render-other-counter-value [renderer [_ path _ {:keys [speed distance]}] input-queue]
   (let [key (last path)]
-    (templates/update-t renderer path {:count (str  (:speed new-value))})))
+    (templates/update-t renderer path {:count (str  speed)
+                                       :distance (str distance)})))
 
-(defn render-my-car-value [renderer [_ path _ new-value] input-queue]
-  (templates/update-t renderer [:main] {:my-gear (str new-value)}))
-
-(defn render-my-car-rpm [renderer [_ path _ new-value] input-queue]
-  (templates/update-t renderer [:main] {:my-rpm (str new-value)}))
-
-(defn render-my-car-speed[renderer [_ path _ new-value] input-queue]
-  (templates/update-t renderer [:main] {:my-speed (str new-value)}))
-
+(defn render-my-car [renderer [_ path _ new-value] input-queue]
+  (.log js/console (last path) (str new-value))
+  (templates/update-t renderer [:main] {(last path) (str new-value)}))
 
 (defn render-config []
   [[:node-create [:main] (render-template :sr-client-page
-                                          (constantly {:my-gear 0}))]
+                                          (constantly {:gear 0}))]
    ;[:node-create [:main :my-car :gear] (render-template :my-player                                                    (constantly {:count 0}))]
    [:node-destroy [:main] h/default-destroy]
    [:transform-enable [:main :my-car] (h/add-send-on-click "inc-button")]
    [:transform-disable [:main :my-car] (h/remove-send-on-click "inc-button")]
-   [:value [:main :my-car :gear] render-my-car-value]
-   [:value [:main :my-car :rpm] render-my-car-rpm]
-   [:value [:main :my-car :speed] render-my-car-speed]
+   [:value [:main :my-car :*] render-my-car]
    [:value [:main :*] render-value]
    [:value [:pedestal :debug :*] render-value]
 
