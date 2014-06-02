@@ -27,13 +27,16 @@
 
 (defn render-other-counter-value [renderer [_ path _ new-value] input-queue]
   (let [key (last path)]
-    (templates/update-t renderer path {:count (str new-value)})))
+    (templates/update-t renderer path {:count (str  (:speed new-value))})))
 
 (defn render-my-car-value [renderer [_ path _ new-value] input-queue]
   (templates/update-t renderer [:main] {:my-gear (str new-value)}))
 
 (defn render-my-car-rpm [renderer [_ path _ new-value] input-queue]
   (templates/update-t renderer [:main] {:my-rpm (str new-value)}))
+
+(defn render-my-car-speed[renderer [_ path _ new-value] input-queue]
+  (templates/update-t renderer [:main] {:my-speed (str new-value)}))
 
 
 (defn render-config []
@@ -45,6 +48,7 @@
    [:transform-disable [:main :my-car] (h/remove-send-on-click "inc-button")]
    [:value [:main :my-car :gear] render-my-car-value]
    [:value [:main :my-car :rpm] render-my-car-rpm]
+   [:value [:main :my-car :speed] render-my-car-speed]
    [:value [:main :*] render-value]
    [:value [:pedestal :debug :*] render-value]
 

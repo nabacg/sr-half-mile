@@ -3,10 +3,11 @@
               [io.pedestal.app.messages :as msg]
               [io.pedestal.app :as app]))
 
-(defn shift-gear-transform [{:keys [gear rpm] :as old_value} _]
+(defn shift-gear-transform [{:keys [gear rpm speed]} _]
 ;  (.log js/console "PRINTING"  gear rpm old_value)
   {:gear ((fnil inc 0) gear)
-   :rpm 0})
+   :rpm 0
+   :speed speed})
 
 (defn publish-player [player]
   [{msg/type :swap msg/topic [:other-players] :value player}])
@@ -60,14 +61,14 @@
           [#{[:my-car :gear]
              [:time]
              [:my-car :rpm]
-             [:speed]
+             [:my-car :speed]
              [:other-players :*]
              [:total-count]
              [:total-gears]} (app/default-emitter [:main])]
           [#{[:pedestal :debug :*]} (app/default-emitter [])]]
-   :effect #{[#{[:speed]} publish-player :single-val]}
+   :effect #{[#{[:my-car]} publish-player :single-val]}
    :derive #{[{[:my-car] :me [:other-players] :others} [:players] merge-players :map]
-             [{[:my-car :gear] :gear [:my-car :rpm] :rpm} [:speed] get-speed :map]
+             [{[:my-car :gear] :gear [:my-car :rpm] :rpm} [:my-car :speed] get-speed :map]
              [{[:my-car :gear] :gear [:time] :time} [:my-car :rpm] get-rpm :map]
              [#{[:players :*]} [:total-count] total-count :vals]
              [#{[:players :* :gear]} [:total-gears] sum-all :vals]}
