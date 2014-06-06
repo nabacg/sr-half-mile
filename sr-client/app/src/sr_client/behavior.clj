@@ -6,15 +6,14 @@
 
 (def max-rpm 15000)
 (def race-distance-meters 402)
-
-
+(def max-gear 5)
 
 (defn shift-gear-transform [{:keys [gear rpm speed distance]} _]
-;  (.log js/console "PRINTING"  gear rpm old_value)
-  {:gear ((fnil inc 0) gear)
-   :rpm 0
-   :speed speed
-   :distance distance})
+  (let [new-gear ((fnil inc 0) gear)]
+    {:gear (if (> new-gear max-gear) gear new-gear)
+     :rpm 0
+     :speed speed
+     :distance distance}))
 
 (defn publish-player [player]
   [{msg/type :swap msg/topic [:other-players] :value player}])
@@ -22,8 +21,6 @@
 (defn swap-transform [_ message]
   (:value message))
 
-;msg
-;{msg/type :shift-gear msg/topic [:my-car :gear]}
 (defn total-count [_ nums]
   (do
     ;(.log js/console "!!!!!!!!!!" nums)
