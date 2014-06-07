@@ -1,75 +1,3 @@
-var Bar = function(paper, x, y, vals) {
-
-  var barAnimateTime = 2000;
-  var barWidth = 20;
-  var colors = ["#0f0", "#00f", "#f00"];
-
-  var rect = function(x, y, w, h, color) {
-    return paper.rect(x, y, w, h).attr({fill: color, stroke: "none"});
-  }
-
-  var bars = {};
-
-  for(var i in vals) {
-    var b = vals[i];
-    var size = b.size || 0;
-    b.bar = rect(x, y, barWidth, size, colors[i % colors.length]);
-    bars[b.name] = b;
-  }
-
-  var resizeBar = function(bar, size) {
-    bar.animate({height: size}, barAnimateTime);
-  }
-
-  var destroy = function() {
-    for(var i in bars) {
-      if(bars.hasOwnProperty(i)) {
-        bars[i].bar.stop();
-        bars[i] = null;
-      }
-    }
-  }
-
-  return {
-    setSize: function(name, n) {
-      resizeBar(bars[name].bar, n);
-    },
-    vals: vals,
-    destroy: destroy
-  }
-}
-
-
-var Bars = function(bars) {
-
-  var index = {};
-
-  for(var i in bars) {
-    var bar = bars[i];
-    var vals = bar.vals;
-    for(var j in vals) {
-      var val = vals[j];
-      index[val.name] = bar;
-    }
-  }
-
-  var destroy = function() {
-    for(var i in bars) {
-      bars[i].destroy();
-    }
-  }
-
-  return {
-    setSize: function(name, n) {
-      var b = index[name];
-      if(b)
-        b.setSize(name, n);
-    },
-    destroy: destroy
-  };
-};
-
-
 var Cars = function(paper, w, h) {
     var defaultHeight = 20;
     var defaultWidth = 10;
@@ -84,15 +12,28 @@ var Cars = function(paper, w, h) {
         {
             var bBox = c.getBBox();
             var newY = bBox.y - delta;
-            c.animate({"y": newY}, moveAnimateTime);
+            if(newY >= 0)
+                c.animate({"y": newY}, moveAnimateTime);
         }
     };
 
     var moveCarAbs = function(c, distance) {
         if(c && !removeAll) {
             var newY = h - defaultHeight -distance;
-            c.animate({"y": newY}, moveAnimateTime);
+            //todo refactor moveCarAbs and moveCar to one method that takes newY
+            //or lambda to calc new Y, rest is the same
+            if(newY >= 0)
+                c.animate({"y": newY}, moveAnimateTime);
         }
+    };
+
+
+    var makeCar = function(x, color) {
+        var rect = paper
+                .rect(x, h-defaultHeight, defaultWidth, defaultHeight)
+                .attr({fill: color, stroke:"none"});
+        cars.push(rect);
+        return rect;
     };
 
     var move = function(){
@@ -105,13 +46,6 @@ var Cars = function(paper, w, h) {
         setTimeout(move, 3000);
     };
 
-    var makeCar = function(x, color) {
-        var rect = paper
-                .rect(x, h-defaultHeight, defaultWidth, defaultHeight)
-                .attr({fill: color, stroke:"none"});
-        cars.push(rect);
-        return rect;
-    };
 
     var destroy = function() {
         removeAll = true;
@@ -182,7 +116,7 @@ var Leaderboard = function(paper, cars, x, y) {
     setScore: function(name, score) {
       var p = players[name];
       p.setScore(score);
-      cars.moveCarAbs(p.car, score);
+      cars.moveCarAbs(p.car, 10*score);
     },
     setOrder: function(name, i) {
       var p = players[name];
@@ -200,13 +134,7 @@ var BubbleGame = function(id) {
 
   var paper = Raphael(id, 800, 400);
 
-  var bars = Bars([Bar(paper, 0, 380, [{name: "covered"},
-                                       {name: "left"}]),
-                   Bar(paper, 50, 357, [{name: "dataflow-time-max"},
-                                       {name: "dataflow-time-avg"},
-                                       {name: "dataflow-time"}])]);
-
-  //var circles = Circles(paper, 500, 380);
+   //var circles = Circles(paper, 500, 380);
   var cars = Cars(paper, 500, 300);
   // var c1 = cars.addCar(0, "#f00");
   // cars.addCar(30, "#FF9");
@@ -215,9 +143,6 @@ var BubbleGame = function(id) {
   var leaderboard = Leaderboard(paper, cars, 550, 0);
 
   var destroy = function() {
-
-    bars.destroy();
-    bars = null;
     leaderboard = null;
     paper.remove();
     paper = null;
@@ -238,11 +163,16 @@ var BubbleGame = function(id) {
   // cars.moveCars();
  // setInterval(makeCircles, 2000);
 
+  var setStat = function(key, value) {
+      // if(console)
+      //     console.log("received stat:" + key + value);
+  };
+
   return {
     addPlayer: leaderboard.addPlayer,
     setScore: leaderboard.setScore,
     setOrder: leaderboard.setOrder,
-    setStat: bars.setSize,
+    setStat : setStat,
     destroy: destroy
   };
 };
