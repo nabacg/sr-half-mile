@@ -1,0 +1,238 @@
+var Bar = function(paper, x, y, vals) {
+
+  var barAnimateTime = 2000;
+  var barWidth = 20;
+  var colors = ["#0f0", "#00f", "#f00"];
+
+  var rect = function(x, y, w, h, color) {
+    return paper.rect(x, y, w, h).attr({fill: color, stroke: "none"});
+  }
+
+  var bars = {};
+
+  for(var i in vals) {
+    var b = vals[i];
+    var size = b.size || 0;
+    b.bar = rect(x, y, barWidth, size, colors[i % colors.length]);
+    bars[b.name] = b;
+  }
+
+  var resizeBar = function(bar, size) {
+    bar.animate({height: size}, barAnimateTime);
+  }
+
+  var destroy = function() {
+    for(var i in bars) {
+      if(bars.hasOwnProperty(i)) {
+        bars[i].bar.stop();
+        bars[i] = null;
+      }
+    }
+  }
+
+  return {
+    setSize: function(name, n) {
+      resizeBar(bars[name].bar, n);
+    },
+    vals: vals,
+    destroy: destroy
+  }
+}
+
+
+var Bars = function(bars) {
+
+  var index = {};
+
+  for(var i in bars) {
+    var bar = bars[i];
+    var vals = bar.vals;
+    for(var j in vals) {
+      var val = vals[j];
+      index[val.name] = bar;
+    }
+  }
+
+  var destroy = function() {
+    for(var i in bars) {
+      bars[i].destroy();
+    }
+  }
+
+  return {
+    setSize: function(name, n) {
+      var b = index[name];
+      if(b)
+        b.setSize(name, n);
+    },
+    destroy: destroy
+  };
+};
+
+
+var Cars = function(paper, w, h) {
+    var defaultHeight = 20;
+    var defaultWidth = 10;
+    var removeAll = false;
+    var moveAnimateTime = 1000;
+    var paperWidth = w;
+    var paperHeight = h;
+
+    var cars = [];
+    var moveCar = function(c, delta) {
+        if(c && !removeAll)
+        {
+            var bBox = c.getBBox();
+            var newY = bBox.y - delta;
+            c.animate({"y": newY}, moveAnimateTime);
+        }
+    };
+
+    var move = function(){
+        if(cars && cars.length > 0)
+        {
+            for(var i = 0; i < cars.length; i++) {
+                moveCar(cars[i], 10);
+            }
+        }
+        setTimeout(move, 3000);
+    };
+
+    var makeCar = function(x, color) {
+        var rect = paper
+                .rect(x, h-defaultHeight, defaultWidth, defaultHeight)
+                .attr({fill: color, stroke:"none"});
+        cars.push(rect);
+        return rect;
+    };
+
+    var destroy = function() {
+        removeAll = true;
+    };
+
+    return {
+        addCar: makeCar,
+        moveCars: move,
+        destroy: destroy
+    };
+};
+
+
+var Player = function(paper, x, y, name) {
+
+  var nameLength = 150;
+  var fontSize = 20;
+
+  var score = 0;
+
+  var nameText = paper.text(x, y, name).attr({
+    "font-size": fontSize,
+    "text-anchor": "start"});
+  var scoreText = paper.text(x + nameLength, y, score).attr({
+    "font-size": fontSize,
+    "text-anchor": "end"});
+  var st = paper.set();
+  st.push(nameText, scoreText);
+
+  return {
+    setScore: function(n) {
+      score = n;
+      scoreText.attr({text: score});
+    },
+    moveTo: function(y) {
+      st.animate({y: y}, 400);
+    }
+  };
+};
+
+var Leaderboard = function(paper, x, y) {
+
+  var playerSpacing = 30;
+
+  var players = {};
+
+  var playerY = function(i) {
+    return 50 + (i * playerSpacing);
+  };
+
+  var countPlayers = function() {
+    var count = 0;
+    for(var i in players) {
+      if(players.hasOwnProperty(i))
+        count++;
+    }
+    return count;
+  };
+
+  return {
+    addPlayer: function(name) {
+      var i = countPlayers();
+      var p = Player(paper, x, playerY(i), name);
+      players[name] = p;
+    },
+    setScore: function(name, score) {
+      var p = players[name];
+      p.setScore(score);
+    },
+    setOrder: function(name, i) {
+      var p = players[name];
+      if(p)
+        p.moveTo(playerY(i));
+    },
+    count: function() {
+      return countPlayers();
+    }
+  };
+};
+
+
+var BubbleGame = function(id) {
+
+  var paper = Raphael(id, 800, 400);
+
+  var bars = Bars([Bar(paper, 0, 380, [{name: "covered"},
+                                       {name: "left"}]),
+                   Bar(paper, 50, 357, [{name: "dataflow-time-max"},
+                                       {name: "dataflow-time-avg"},
+                                       {name: "dataflow-time"}])]);
+
+  //var circles = Circles(paper, 500, 380);
+  var cars = Cars(paper, 500, 300);
+  // var c1 = cars.addCar(0, "#f00");
+  // cars.addCar(30, "#FF9");
+  // cars.moveCar(c1);
+
+  var leaderboard = Leaderboard(paper, 550, 0);
+
+  var destroy = function() {
+
+    bars.destroy();
+    bars = null;
+    leaderboard = null;
+    paper.remove();
+    paper = null;
+  };
+
+  // This will be removed as we make improvements to the game.
+  // The dataflow will control when circles are created.
+  var makeCars = function() {
+    if(leaderboard) {
+      var p = leaderboard.count();
+      for(var i=0;i<p;i++) {
+          cars.addCar(i*30, "#f9"+i*3);
+      }
+    }
+  };
+
+  setTimeout(makeCars, 2000);
+  cars.moveCars();
+ // setInterval(makeCircles, 2000);
+
+  return {
+    addPlayer: leaderboard.addPlayer,
+    setScore: leaderboard.setScore,
+    setOrder: leaderboard.setOrder,
+    setStat: bars.setSize,
+    destroy: destroy
+  };
+};
