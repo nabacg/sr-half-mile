@@ -88,6 +88,13 @@ var Cars = function(paper, w, h) {
         }
     };
 
+    var moveCarAbs = function(c, distance) {
+        if(c && !removeAll) {
+            var newY = h - defaultHeight -distance;
+            c.animate({"y": newY}, moveAnimateTime);
+        }
+    };
+
     var move = function(){
         if(cars && cars.length > 0)
         {
@@ -113,6 +120,7 @@ var Cars = function(paper, w, h) {
     return {
         addCar: makeCar,
         moveCars: move,
+        moveCarAbs: moveCarAbs,
         destroy: destroy
     };
 };
@@ -145,7 +153,7 @@ var Player = function(paper, x, y, name) {
   };
 };
 
-var Leaderboard = function(paper, x, y) {
+var Leaderboard = function(paper, cars, x, y) {
 
   var playerSpacing = 30;
 
@@ -168,11 +176,13 @@ var Leaderboard = function(paper, x, y) {
     addPlayer: function(name) {
       var i = countPlayers();
       var p = Player(paper, x, playerY(i), name);
+      p.car = cars.addCar(20*i, "#F53");
       players[name] = p;
     },
     setScore: function(name, score) {
       var p = players[name];
       p.setScore(score);
+      cars.moveCarAbs(p.car, score);
     },
     setOrder: function(name, i) {
       var p = players[name];
@@ -202,7 +212,7 @@ var BubbleGame = function(id) {
   // cars.addCar(30, "#FF9");
   // cars.moveCar(c1);
 
-  var leaderboard = Leaderboard(paper, 550, 0);
+  var leaderboard = Leaderboard(paper, cars, 550, 0);
 
   var destroy = function() {
 
@@ -219,13 +229,13 @@ var BubbleGame = function(id) {
     if(leaderboard) {
       var p = leaderboard.count();
       for(var i=0;i<p;i++) {
-          cars.addCar(i*30, "#f9"+i*3);
+          cars.addCar(i*30, "#f5"+i*3);
       }
     }
   };
 
-  setTimeout(makeCars, 2000);
-  cars.moveCars();
+  // setTimeout(makeCars, 2000);
+  // cars.moveCars();
  // setInterval(makeCircles, 2000);
 
   return {
